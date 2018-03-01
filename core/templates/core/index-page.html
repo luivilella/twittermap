@@ -93,6 +93,12 @@
         },
 
         setHeatmap: function(tweets) {
+          var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 1,
+            center: {lat: 0, lng: 0},
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+          });
+
           var listLatLng = [];
           for (var idx = 0; idx < tweets.length; idx++) {
             var tweet = tweets[idx];
@@ -102,13 +108,15 @@
             for (var idx2 = 0; idx2 < tweet.number_of_tweets; idx2++) {
               listLatLng.push(latLng);
             }
+
+            let marker = new google.maps.Marker({
+              map: map,
+              animation: google.maps.Animation.DROP,
+              position: latLng,
+            });
           }
 
-          var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 1,
-            center: {lat: 0, lng: 0},
-            mapTypeId: google.maps.MapTypeId.ROADMAP,
-          });
+
           var heatmap = new google.maps.visualization.HeatmapLayer({
             data: listLatLng,
             map: map
