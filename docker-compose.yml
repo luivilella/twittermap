@@ -1,0 +1,26 @@
+version: "3"
+ 
+services:
+    backend:
+      container_name: dc-tm-backend
+      build: 
+        context: .
+      command: ["uwsgi", "--socket", "0.0.0.0:8000", "--workers", "10", "--protocol=http", "-w", "twittermap.wsgi"]
+      ports:
+        - "8000:8000"
+      volumes:
+        - .:/deploy
+      working_dir: /deploy
+
+    jobs:
+      container_name: dc-tm-jobs
+      build: 
+        context: .
+      command: ["/bin/sh"]
+      stdin_open: true
+      tty: true
+      ports:
+        - "8001:8000"
+      volumes:
+        - .:/deploy
+      working_dir: /deploy

@@ -1,0 +1,123 @@
+{% extends "core/base-site.html" %}
+<!--
+  I know this template is ugly, but the idea here is just to show a simple map.
+  At moment I'm not going to configure webpack and remove the frontend from django.
+-->
+{% block head_extra_js %}
+  <style>
+    #app {
+      height: 100%;
+      width: 100%;
+    }
+    #map {
+      height: 30%;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #floating-panel {
+      position: absolute;
+      top: 10px;
+      left: 25%;
+      z-index: 5;
+      background-color: #fff;
+      padding: 5px;
+      border: 1px solid #999;
+      text-align: center;
+      font-family: 'Roboto','sans-serif';
+      line-height: 30px;
+      padding-left: 10px;
+    }
+    #floating-panel {
+      background-color: #fff;
+      border: 1px solid #999;
+      left: 25%;
+      padding: 5px;
+      position: absolute;
+      top: 10px;
+      z-index: 5;
+    }
+  </style>
+{% endblock head_extra_js %}
+
+{% block body_content %}
+  <div id="app">
+    <h3 v-if="mapLoaded">Countries that people are talking about</h3>
+    <div id="map"></div>
+    <a class="twitter-timeline" href="https://twitter.com/MaplecroftRisk?ref_src=twsrc%5Etfw">Tweets by MaplecroftRisk</a>
+  </div>
+{% endblock body_content %}
+
+{% block javascript %}
+  <script>
+
+    var map;
+    var google = window.google;
+
+    var Vue = window.Vue;
+    var VueResource = window.VueResource;
+
+    Vue.use(VueResource);
+
+    var app = new Vue({
+      el: '#app',
+
+      data: {
+        mapLoaded: false
+      },
+
+      created: function() {
+        this.loadMapPoints();
+      },
+
+      methods: {
+
+        // services //
+        getTweetsByCountries: function(){
+          return this.$http.get('/tweets-by-countries')
+            .then(function(response){
+              return response.data.data;
+            });
+        },
+
+        // page methods //
+        loadMapPoints: function(){
+          var _this = this;
+          this.getTweetsByCountries()
+            .then(function(tweets) {
+              _this.setHeatmap(tweets);
+              _this.mapLoaded = true;
+            });
+        },
+
+        setHeatmap: function(tweets) {
+          var listLatLng = [];
+          for (var idx = 0; idx < tweets.length; idx++) {
+            var tweet = tweets[idx];
+            var latLng = new google.maps.LatLng(
+              tweet.location.lat, tweet.location.lng
+            );
+            for (var idx2 = 0; idx2 < tweet.number_of_tweets; idx2++) {
+              listLatLng.push(latLng);
+            }
+          }
+
+          var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 1,
+            center: {lat: 0, lng: 0},
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+          });
+          var heatmap = new google.maps.visualization.HeatmapLayer({
+            data: listLatLng,
+            map: map
+          });
+        }
+
+      }
+    });
+
+  </script>
+
+{% endblock javascript %}
