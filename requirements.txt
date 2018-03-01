@@ -1,3 +1,4 @@
 Django==2.0.2
 python-twitter==3.4
 Beaker==1.9.0
+uWSGI==2.0.17
