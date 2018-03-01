@@ -7,6 +7,7 @@ from ..cache import cache as base_cache
 
 
 cache = base_cache.get_cache('tweets_by_countries', expire=3600)
+cache_view = base_cache.get_cache('tweets_by_countries_for_view', expire=3600)
 
 
 def filter_by_country(country):
@@ -15,9 +16,9 @@ def filter_by_country(country):
 
 
 def cache_country(country):
-    cache.set_value(country, [
-        row.__dict__ for row in filter_by_country(country)
-    ])
+    results = filter_by_country(country)
+    cache.set_value(country, [row.__dict__ for row in results])
+    cache_view.set_value(country, len(results))
 
 
 async def async_cache_tweets_by_country():
@@ -51,13 +52,13 @@ def get_tweets_by_country():
     contries_tweets = []
     for country in COUNTRIES_NAMES:
         try:
-            tweets = cache.get_value(country)
+            number_of_tweets = cache_view.get_value(country)
         except KeyError:
             continue
 
         contries_tweets.append(dict(
             country=country,
-            number_of_tweets=len(tweets),
+            number_of_tweets=number_of_tweets,
             location=COUNTRIES_LOCATION_MAP[country]
         ))
     return contries_tweets
