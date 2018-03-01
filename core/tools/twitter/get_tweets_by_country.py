@@ -2,7 +2,7 @@ import asyncio
 import concurrent.futures
 from urllib.parse import urlencode
 from .api import twitter_api
-from ..contries_info import COUNTRIES_NAMES
+from ..contries_info import COUNTRIES_NAMES, COUNTRIES_LOCATION_MAP
 from ..cache import cache as base_cache
 
 
@@ -15,19 +15,30 @@ def filter_by_country(country):
 
 
 def cache_country(country):
-    cache.set_value(country, filter_by_country(country))
+    cache.set_value(country, [
+        row.__dict__ for row in filter_by_country(country)
+    ])
 
 
 async def async_cache_tweets_by_country():
     with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
         loop = asyncio.get_event_loop()
-        futures = []
-        for country in COUNTRIES_NAMES[:1]:
-            futures.append(loop.run_in_executor(
+        futures_in_cache = []
+        futures_not_in_cache = []
+        for country in COUNTRIES_NAMES:
+            future = loop.run_in_executor(
                 executor, cache_country, country
-            ))
+            )
+            try:
+                cache.get_value(country)
+                futures_in_cache.append(future)
+            except KeyError:
+                futures_not_in_cache.append(future)
 
-        for _ in await asyncio.gather(*futures):
+        for _ in await asyncio.gather(*futures_not_in_cache):
+            pass
+
+        for _ in await asyncio.gather(*futures_in_cache):
             pass
 
 
@@ -40,7 +51,13 @@ def get_tweets_by_country():
     contries_tweets = []
     for country in COUNTRIES_NAMES:
         try:
-            contries_tweets.append((country, cache.get_value(country)))
+            tweets = cache.get_value(country)
         except KeyError:
-            pass
+            continue
+
+        contries_tweets.append(dict(
+            country=country,
+            number_of_tweets=len(tweets),
+            location=COUNTRIES_LOCATION_MAP[country]
+        ))
     return contries_tweets
