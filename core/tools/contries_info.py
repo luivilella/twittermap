@@ -252,5 +252,5 @@ COUNTRIES_LIST = (
 COUNTRIES_NAMES = [name for name, *_ in COUNTRIES_LIST]
 
 COUNTRIES_LOCATION_MAP = {
-    name: (lat, lng) for name, _, lat, lng in COUNTRIES_LIST
+    name: dict(lat=lat, lng=lng) for name, _, lat, lng in COUNTRIES_LIST
 }
