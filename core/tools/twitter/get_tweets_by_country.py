@@ -2,7 +2,7 @@ import asyncio
 import concurrent.futures
 from urllib.parse import urlencode
 from .api import twitter_api
-from ..contries_info import COUNTRIES_NAMES, COUNTRIES_LOCATION_MAP
+from ..countries_info import COUNTRIES_NAMES, COUNTRIES_LOCATION_MAP
 from ..cache import cache as base_cache
 
 
@@ -31,7 +31,7 @@ async def async_cache_tweets_by_country():
                 executor, cache_country, country
             )
             try:
-                cache.get_value(country)
+                cache_view.get_value(country)
                 futures_in_cache.append(future)
             except KeyError:
                 futures_not_in_cache.append(future)
