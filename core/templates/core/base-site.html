@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  {% block base_head %}
+  <head>
+    <meta charset="utf-8">
+    <title>{% block page_title %}TwitterMap{% endblock page_title %}</title>
+
+    {% block head_extra_css %}{% endblock head_extra_css %}
+    {% block head_extra_js %}{% endblock head_extra_js %}
+
+  </head>
+  {% endblock base_head %}
+  {% block base_body %}
+  <body>
+      {% block body_content %}{% endblock body_content %}
+      {% block javascript %}{% endblock javascript %}
+  </body>
+  {% endblock base_body %}
+</html>
