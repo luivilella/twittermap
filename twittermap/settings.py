@@ -78,6 +78,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.google_maps_key',
             ],
         },
     },
@@ -140,3 +141,5 @@ TWITTER_CONSUMER_KEY = os.environ.get('TWITTER_CONSUMER_KEY')
 TWITTER_CONSUMER_SECRET = os.environ.get('TWITTER_CONSUMER_SECRET')
 TWITTER_TOKEN_KEY = os.environ.get('TWITTER_TOKEN_KEY')
 TWITTER_TOKEN_SECRET = os.environ.get('TWITTER_TOKEN_SECRET')
+
+GOOGLE_MAPS_KEY = os.environ.get('GOOGLE_MAPS_KEY')
